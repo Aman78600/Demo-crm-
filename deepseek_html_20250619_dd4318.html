@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced CRM System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+            min-width: 120px;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #f8f9ff, #e8f0ff);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            outline: none;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-danger {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e04a5f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-qualified {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-proposal {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+
+        .status-negotiation {
+            background-color: #f3e5f5;
+            color: #8e24aa;
+        }
+
+        .status-closed-won {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-closed-lost {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .status-unqualified {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .dashboard-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .dashboard-card p {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-box h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .activity-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .activity-description {
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateX(100%);
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Advanced CRM System</h1>
+            <p>Manage your customers, leads, and opportunities in one place</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="showTab('customers')">Customers</button>
+            <button class="nav-tab" onclick="showTab('leads')">Leads</button>
+            <button class="nav-tab" onclick="showTab('opportunities')">Opportunities</button>
+            <button class="nav-tab" onclick="showTab('activities')">Activities</button>
+            <button class="nav-tab" onclick="showTab('reports')">Reports</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <h3>Total Customers</h3>
+                    <p id="totalCustomers">0</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Active Leads</h3>
+                    <p id="totalLeads">0</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Open Opportunities</h3>
+                    <p id="totalOpportunities">0</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Pipeline Value</h3>
+                    <p id="totalRevenue">$0</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-box">
+                    <h3>Sales Pipeline</h3>
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Monthly Sales</h3>
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>Recent Activities</h3>
+                <div id="activitiesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customers" class="tab-content">
+            <div class="form-section">
+                <h2>Add New Customer</h2>
+                <form id="customerForm">
+                    <div class="form-group">
+                        <label for="companyName">Company Name</label>
+                        <input type="text" id="companyName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="industry">Industry</label>
+                        <select id="industry" required>
+                            <option value="">Select Industry</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                            <option value="Retail">Retail</option>
+                            <option value="Education">Education</option>
+                            <option value="Hospitality">Hospitality</option>
+                            <option value="Energy">Energy</option>
+                            <option value="Transportation">Transportation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPerson">Contact Person</label>
+                        <input type="text" id="contactPerson" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail">Email</label>
+                        <input type="email" id="customerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone</label>
+                        <input type="tel" id="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="annualRevenue">Annual Revenue ($)</label>
+                        <input type="number" id="annualRevenue" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Address</label>
+                        <textarea id="customerAddress" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                </form>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="customerSearch" placeholder="Search customers...">
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Company Name</th>
+                        <th>Industry</th>
+                        <th>Contact Person</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Annual Revenue</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Leads Tab -->
+        <div id="leads" class="tab-content">
+            <div class="form-section">
+                <h2>Add New Lead</h2>
+                <form id="leadForm">
+                    <div class="form-group">
+                        <label for="leadName">Name</label>
+                        <input type="text" id="leadName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadCompany">Company</label>
+                        <input type="text" id="leadCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadEmail">Email</label>
+                        <input type="email" id="leadEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadPhone">Phone</label>
+                        <input type="tel" id="leadPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadSource">Source</label>
+                        <select id="leadSource" required>
+                            <option value="">Select Source</option>
+                            <option value="Website">Website</option>
+                            <option value="Referral">Referral</option>
+                            <option value="Advertisement">Advertisement</option>
+                            <option value="Social Media">Social Media</option>
+                            <option value="Event">Event</option>
+                            <option value="Cold Call">Cold Call</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadStatus">Status</label>
+                        <select id="leadStatus" required>
+                            <option value="New">New</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Qualified">Qualified</option>
+                            <option value="Unqualified">Unqualified</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadNotes">Notes</label>
+                        <textarea id="leadNotes" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Lead</button>
+                </form>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="leadSearch" placeholder="Search leads...">
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Company</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Opportunities Tab -->
+        <div id="opportunities" class="tab-content">
+            <div class="form-section">
+                <h2>Add New Opportunity</h2>
+                <form id="opportunityForm">
+                    <div class="form-group">
+                        <label for="opportunityName">Opportunity Name</label>
+                        <input type="text" id="opportunityName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="opportunityCustomer">Customer</label>
+                        <select id="opportunityCustomer" required>
+                            <option value="">Select Customer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="opportunityValue">Value ($)</label>
+                        <input type="number" id="opportunityValue" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="opportunityProbability">Probability (%)</label>
+                        <input type="number" id="opportunityProbability" min="0" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="opportunityStage">Stage</label>
+                        <select id="opportunityStage" required>
+                            <option value="Prospecting">Prospecting</option>
+                            <option value="Qualification">Qualification</option>
+                            <option value="Needs Analysis">Needs Analysis</option>
+                            <option value="Value Proposition">Value Proposition</option>
+                            <option value="Negotiation">Negotiation</option>
+                            <option value="Closed Won">Closed Won</option>
+                            <option value="Closed Lost">Closed Lost</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="opportunityCloseDate">Close Date</label>
+                        <input type="date" id="opportunityCloseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="opportunityDescription">Description</label>
+                        <textarea id="opportunityDescription" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Opportunity</button>
+                </form>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="opportunitySearch" placeholder="Search opportunities...">
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Customer</th>
+                        <th>Value</th>
+                        <th>Probability</th>
+                        <th>Stage</th>
+                        <th>Close Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="opportunitiesTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Activities Tab -->
+        <div id="activities" class="tab-content">
+            <div class="form-section">
+                <h2>Log New Activity</h2>
+                <form id="activityForm">
+                    <div class="form-group">
+                        <label for="activityType">Type</label>
+                        <select id="activityType" required>
+                            <option value="">Select Type</option>
+                            <option value="Call">Call</option>
+                            <option value="Email">Email</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Task">Task</option>
+                            <option value="Note">Note</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="activitySubject">Subject</label>
+                        <input type="text" id="activitySubject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="activityDescription">Description</label>
+                        <textarea id="activityDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="activityDateTime">Date & Time</label>
+                        <input type="datetime-local" id="activityDateTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="activityRelated">Related To</label>
+                        <select id="activityRelated">
+                            <option value="">None</option>
+                            <option value="Customer">Customer</option>
+                            <option value="Lead">Lead</option>
+                            <option value="Opportunity">Opportunity</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Log Activity</button>
+                </form>
+            </div>
+
+            <h2>Recent Activities</h2>
+            <div id="activitiesContainer"></div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="chart-container">
+                <div class="chart-box">
+                    <h3>Customers by Industry</h3>
+                    <canvas id="industryChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Leads by Status</h3>
+                    <canvas id="leadStatusChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>Opportunities by Stage</h3>
+                <canvas id="opportunityStageChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Initialize data from Excel
+        const companiesData = [
+            // Sample data from the Excel sheet
+            { "Company Name": "Potter LLC", "Website": "maldonado.biz", "Address": "610 3rd St., Santa Rosa, California, 95404", "Revenue (in Millions)": 407.81, "Industry": "Technology" },
+            { "Company Name": "Jackson Ltd", "Website": "steele-barnett.com", "Address": "15045 River Rd., Guerneville, California, 95446", "Revenue (in Millions)": 480.74, "Industry": "Healthcare" },
+            // Add more companies as needed
+        ];
+
+        const peopleData = [
+            // Sample data from the Excel sheet
+            { "Name": "Fernando Myers", "Email": "FernandoMyers@testemail.com", "Phone Number": "4074627289", "Company": "Martin-Gates", "Title": "Nurse, children's" },
+            { "Name": "Danielle Sheppard", "Email": "DanielleSheppard@testemail.com", "Phone Number": "001-580-334-4312", "Company": "Brown-Pugh", "Title": "Counsellor" },
+            // Add more people as needed
+        ];
+
+        // Initialize application data
+        let customers = [];
+        let leads = [];
+        let opportunities = [];
+        let activities = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sample data from Excel
+            loadSampleData();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Show dashboard by default
+            showTab('dashboard');
+            
+            // Initialize dashboard
+            updateDashboard();
+            updateReports();
+            
+            // Log initial activity
+            logActivity('System', 'Application started', 'CRM system initialized');
+        });
+
+        function loadSampleData() {
+            // Load companies as customers
+            companiesData.forEach(company => {
+                customers.push({
+                    id: Date.now() + Math.random(),
+                    companyName: company['Company Name'],
+                    industry: company['Industry'],
+                    contactPerson: '', // Will be populated from people data
+                    email: company['Website'] ? `info@${company['Website']}` : '',
+                    phone: '', // Not available in sample data
+                    annualRevenue: company['Revenue (in Millions)'] * 1000000,
+                    address: company['Address']
+                });
+            });
+
+            // Find contact persons from people data
+            peopleData.forEach(person => {
+                const company = customers.find(c => c.companyName === person['Company']);
+                if (company) {
+                    if (!company.contactPerson) {
+                        company.contactPerson = person['Name'];
+                        company.email = person['Email'];
+                        company.phone = person['Phone Number'];
+                    }
+                }
+            });
+
+            // Create some sample leads
+            leads = [
+                {
+                    id: 1,
+                    name: "John Smith",
+                    company: "Acme Inc",
+                    email: "john.smith@acme.com",
+                    phone: "555-123-4567",
+                    source: "Website",
+                    status: "New",
+                    notes: "Interested in our enterprise solution"
+                },
+                {
+                    id: 2,
+                    name: "Sarah Johnson",
+                    company: "TechCorp",
+                    email: "sarah.j@techcorp.com",
+                    phone: "555-987-6543",
+                    source: "Referral",
+                    status: "Qualified",
+                    notes: "Decision maker, budget approved"
+                }
+            ];
+
+            // Create some sample opportunities
+            opportunities = [
+                {
+                    id: 1,
+                    name: "Enterprise Software Deal",
+                    customer: "Jackson Ltd",
+                    value: 50000,
+                    probability: 70,
+                    stage: "Negotiation",
+                    closeDate: "2023-12-15",
+                    description: "Enterprise license for 500 users"
+                },
+                {
+                    id: 2,
+                    name: "Healthcare Solution",
+                    customer: "Potter LLC",
+                    value: 25000,
+                    probability: 30,
+                    stage: "Qualification",
+                    closeDate: "2023-11-30",
+                    description: "Pilot program for new healthcare module"
+                }
+            ];
+
+            // Render all data
+            renderCustomers();
+            renderLeads();
+            renderOpportunities();
+            renderActivities();
+        }
+
+        function setupEventListeners() {
+            // Form submissions
+            document.getElementById('customerForm').addEventListener('submit', handleCustomerSubmit);
+            document.getElementById('leadForm').addEventListener('submit', handleLeadSubmit);
+            document.getElementById('opportunityForm').addEventListener('submit', handleOpportunitySubmit);
+            document.getElementById('activityForm').addEventListener('submit', handleActivitySubmit);
+
+            // Search functionality
+            document.getElementById('customerSearch').addEventListener('input', filterCustomers);
+            document.getElementById('leadSearch').addEventListener('input', filterLeads);
+            document.getElementById('opportunitySearch').addEventListener('input', filterOpportunities);
+
+            // Modal close
+            document.querySelector('.close').addEventListener('click', closeModal);
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('editModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab and mark as active
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Update opportunity customer dropdown
+            if (tabName === 'opportunities') {
+                updateOpportunityCustomerDropdown();
+            }
+        }
+
+        // Customer Management
+        function handleCustomerSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const customer = {
+                id: Date.now(),
+                companyName: document.getElementById('companyName').value,
+                industry: document.getElementById('industry').value,
+                contactPerson: document.getElementById('contactPerson').value,
+                email: document.getElementById('customerEmail').value,
+                phone: document.getElementById('customerPhone').value,
+                annualRevenue: parseFloat(document.getElementById('annualRevenue').value) || 0,
+                address: document.getElementById('customerAddress').value
+            };
+
+            customers.push(customer);
+            renderCustomers();
+            updateDashboard();
+            updateReports();
+            e.target.reset();
+            
+            // Show success message
+            showNotification('Customer added successfully!', 'success');
+        }
+
+        function renderCustomers() {
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+
+            customers.forEach(customer => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${customer.companyName}</td>
+                    <td>${customer.industry}</td>
+                    <td>${customer.contactPerson}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phone}</td>
+                    <td>$${customer.annualRevenue.toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="margin-right: 5px; padding: 5px 10px; font-size: 0.8em;" onclick="editCustomer(${customer.id})">Edit</button>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="deleteCustomer(${customer.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filterCustomers() {
+            const searchTerm = document.getElementById('customerSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#customersTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function editCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (!customer) return;
+
+            document.getElementById('modalContent').innerHTML = `
+                <h2>Edit Customer</h2>
+                <form id="editCustomerForm">
+                    <input type="hidden" id="editCustomerId" value="${customer.id}">
+                    <div class="form-group">
+                        <label for="editCompanyName">Company Name</label>
+                        <input type="text" id="editCompanyName" value="${customer.companyName}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editIndustry">Industry</label>
+                        <select id="editIndustry" required>
+                            <option value="Technology" ${customer.industry === 'Technology' ? 'selected' : ''}>Technology</option>
+                            <option value="Healthcare" ${customer.industry === 'Healthcare' ? 'selected' : ''}>Healthcare</option>
+                            <option value="Finance" ${customer.industry === 'Finance' ? 'selected' : ''}>Finance</option>
+                            <option value="Manufacturing" ${customer.industry === 'Manufacturing' ? 'selected' : ''}>Manufacturing</option>
+                            <option value="Retail" ${customer.industry === 'Retail' ? 'selected' : ''}>Retail</option>
+                            <option value="Education" ${customer.industry === 'Education' ? 'selected' : ''}>Education</option>
+                            <option value="Hospitality" ${customer.industry === 'Hospitality' ? 'selected' : ''}>Hospitality</option>
+                            <option value="Energy" ${customer.industry === 'Energy' ? 'selected' : ''}>Energy</option>
+                            <option value="Transportation" ${customer.industry === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editContactPerson">Contact Person</label>
+                        <input type="text" id="editContactPerson" value="${customer.contactPerson}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCustomerEmail">Email</label>
+                        <input type="email" id="editCustomerEmail" value="${customer.email}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCustomerPhone">Phone</label>
+                        <input type="tel" id="editCustomerPhone" value="${customer.phone}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAnnualRevenue">Annual Revenue ($)</label>
+                        <input type="number" id="editAnnualRevenue" value="${customer.annualRevenue}" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCustomerAddress">Address</label>
+                        <textarea id="editCustomerAddress" rows="2">${customer.address || ''}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            `;
+
+            document.getElementById('editCustomerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                customer.companyName = document.getElementById('editCompanyName').value;
+                customer.industry = document.getElementById('editIndustry').value;
+                customer.contactPerson = document.getElementById('editContactPerson').value;
+                customer.email = document.getElementById('editCustomerEmail').value;
+                customer.phone = document.getElementById('editCustomerPhone').value;
+                customer.annualRevenue = parseFloat(document.getElementById('editAnnualRevenue').value) || 0;
+                customer.address = document.getElementById('editCustomerAddress').value;
+
+                renderCustomers();
+                updateDashboard();
+                updateReports();
+                closeModal();
+                showNotification('Customer updated successfully!', 'success');
+            });
+
+            openModal();
+        }
+
+        function deleteCustomer(id) {
+            if (confirm('Are you sure you want to delete this customer?')) {
+                customers = customers.filter(customer => customer.id !== id);
+                renderCustomers();
+                updateDashboard();
+                updateReports();
+                showNotification('Customer deleted successfully!', 'success');
+            }
+        }
+
+        // Lead Management
+        function handleLeadSubmit(e) {
+            e.preventDefault();
+            const lead = {
+                id: Date.now(),
+                name: document.getElementById('leadName').value,
+                company: document.getElementById('leadCompany').value,
+                email: document.getElementById('leadEmail').value,
+                phone: document.getElementById('leadPhone').value,
+                source: document.getElementById('leadSource').value,
+                status: document.getElementById('leadStatus').value,
+                notes: document.getElementById('leadNotes').value
+            };
+
+            leads.push(lead);
+            renderLeads();
+            updateDashboard();
+            updateReports();
+            e.target.reset();
+            
+            logActivity('Lead', 'New lead created', `Added ${lead.name} from ${lead.company}`);
+            showNotification('Lead added successfully!', 'success');
+        }
+
+        function renderLeads() {
+            const tbody = document.getElementById('leadsTableBody');
+            tbody.innerHTML = '';
+
+            leads.forEach(lead => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${lead.name}</td>
+                    <td>${lead.company}</td>
+                    <td>${lead.email}</td>
+                    <td>${lead.phone}</td>
+                    <td>${lead.source}</td>
+                    <td><span class="status-badge status-${lead.status.toLowerCase()}">${lead.status}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" style="margin-right: 5px; padding: 5px 10px; font-size: 0.8em;" onclick="editLead(${lead.id})">Edit</button>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="deleteLead(${lead.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filterLeads() {
+            const searchTerm = document.getElementById('leadSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#leadsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function editLead(id) {
+            const lead = leads.find(l => l.id === id);
+            if (!lead) return;
+
+            document.getElementById('modalContent').innerHTML = `
+                <h2>Edit Lead</h2>
+                <form id="editLeadForm">
+                    <input type="hidden" id="editLeadId" value="${lead.id}">
+                    <div class="form-group">
+                        <label for="editLeadName">Name</label>
+                        <input type="text" id="editLeadName" value="${lead.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLeadCompany">Company</label>
+                        <input type="text" id="editLeadCompany" value="${lead.company}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLeadEmail">Email</label>
+                        <input type="email" id="editLeadEmail" value="${lead.email}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLeadPhone">Phone</label>
+                        <input type="tel" id="editLeadPhone" value="${lead.phone}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLeadSource">Source</label>
+                        <select id="editLeadSource" required>
+                            <option value="Website" ${lead.source === 'Website' ? 'selected' : ''}>Website</option>
+                            <option value="Referral" ${lead.source === 'Referral' ? 'selected' : ''}>Referral</option>
+                            <option value="Advertisement" ${lead.source === 'Advertisement' ? 'selected' : ''}>Advertisement</option>
+                            <option value="Social Media" ${lead.source === 'Social Media' ? 'selected' : ''}>Social Media</option>
+                            <option value="Event" ${lead.source === 'Event' ? 'selected' : ''}>Event</option>
+                            <option value="Cold Call" ${lead.source === 'Cold Call' ? 'selected' : ''}>Cold Call</option>
+                            <option value="Other" ${lead.source === 'Other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLeadStatus">Status</label>
+                        <select id="editLeadStatus" required>
+                            <option value="New" ${lead.status === 'New' ? 'selected' : ''}>New</option>
+                            <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+                            <option value="Qualified" ${lead.status === 'Qualified' ? 'selected' : ''}>Qualified</option>
+                            <option value="Unqualified" ${lead.status === 'Unqualified' ? 'selected' : ''}>Unqualified</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLeadNotes">Notes</label>
+                        <textarea id="editLeadNotes" rows="3">${lead.notes || ''}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            `;
+
+            document.getElementById('editLeadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                lead.name = document.getElementById('editLeadName').value;
+                lead.company = document.getElementById('editLeadCompany').value;
+                lead.email = document.getElementById('editLeadEmail').value;
+                lead.phone = document.getElementById('editLeadPhone').value;
+                lead.source = document.getElementById('editLeadSource').value;
+                lead.status = document.getElementById('editLeadStatus').value;
+                lead.notes = document.getElementById('editLeadNotes').value;
+
+                renderLeads();
+                updateDashboard();
+                updateReports();
+                closeModal();
+                showNotification('Lead updated successfully!', 'success');
+            });
+
+            openModal();
+        }
+
+        function deleteLead(id) {
+            if (confirm('Are you sure you want to delete this lead?')) {
+                leads = leads.filter(lead => lead.id !== id);
+                renderLeads();
+                updateDashboard();
+                updateReports();
+                showNotification('Lead deleted successfully!', 'success');
+            }
+        }
+
+        // Opportunity Management
+        function handleOpportunitySubmit(e) {
+            e.preventDefault();
+            const opportunity = {
+                id: Date.now(),
+                name: document.getElementById('opportunityName').value,
+                customer: document.getElementById('opportunityCustomer').value,
+                value: parseFloat(document.getElementById('opportunityValue').value),
+                probability: parseInt(document.getElementById('opportunityProbability').value),
+                stage: document.getElementById('opportunityStage').value,
+                closeDate: document.getElementById('opportunityCloseDate').value,
+                description: document.getElementById('opportunityDescription').value
+            };
+
+            opportunities.push(opportunity);
+            renderOpportunities();
+            updateDashboard();
+            updateReports();
+            e.target.reset();
+            
+            logActivity('Opportunity', 'New opportunity created', `Added ${opportunity.name} for ${opportunity.customer}`);
+            showNotification('Opportunity added successfully!', 'success');
+        }
+
+        function updateOpportunityCustomerDropdown() {
+            const select = document.getElementById('opportunityCustomer');
+            select.innerHTML = '<option value="">Select Customer</option>';
+            
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.companyName;
+                option.textContent = customer.companyName;
+                select.appendChild(option);
+            });
+        }
+
+        function renderOpportunities() {
+            const tbody = document.getElementById('opportunitiesTableBody');
+            tbody.innerHTML = '';
+
+            opportunities.forEach(opportunity => {
+                const row = tbody.insertRow();
+                const stageClass = opportunity.stage.toLowerCase().replace(' ', '-');
+                row.innerHTML = `
+                    <td>${opportunity.name}</td>
+                    <td>${opportunity.customer}</td>
+                    <td>$${opportunity.value.toLocaleString()}</td>
+                    <td>${opportunity.probability}%</td>
+                    <td><span class="status-badge status-${stageClass}">${opportunity.stage}</span></td>
+                    <td>${new Date(opportunity.closeDate).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="margin-right: 5px; padding: 5px 10px; font-size: 0.8em;" onclick="editOpportunity(${opportunity.id})">Edit</button>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="deleteOpportunity(${opportunity.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filterOpportunities() {
+            const searchTerm = document.getElementById('opportunitySearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#opportunitiesTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function editOpportunity(id) {
+            const opportunity = opportunities.find(o => o.id === id);
+            if (!opportunity) return;
+
+            document.getElementById('modalContent').innerHTML = `
+                <h2>Edit Opportunity</h2>
+                <form id="editOpportunityForm">
+                    <input type="hidden" id="editOpportunityId" value="${opportunity.id}">
+                    <div class="form-group">
+                        <label for="editOpportunityName">Opportunity Name</label>
+                        <input type="text" id="editOpportunityName" value="${opportunity.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOpportunityCustomer">Customer</label>
+                        <select id="editOpportunityCustomer" required>
+                            ${customers.map(c => `<option value="${c.companyName}" ${c.companyName === opportunity.customer ? 'selected' : ''}>${c.companyName}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOpportunityValue">Value ($)</label>
+                        <input type="number" id="editOpportunityValue" value="${opportunity.value}" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOpportunityProbability">Probability (%)</label>
+                        <input type="number" id="editOpportunityProbability" value="${opportunity.probability}" min="0" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOpportunityStage">Stage</label>
+                        <select id="editOpportunityStage" required>
+                            <option value="Prospecting" ${opportunity.stage === 'Prospecting' ? 'selected' : ''}>Prospecting</option>
+                            <option value="Qualification" ${opportunity.stage === 'Qualification' ? 'selected' : ''}>Qualification</option>
+                            <option value="Needs Analysis" ${opportunity.stage === 'Needs Analysis' ? 'selected' : ''}>Needs Analysis</option>
+                            <option value="Value Proposition" ${opportunity.stage === 'Value Proposition' ? 'selected' : ''}>Value Proposition</option>
+                            <option value="Negotiation" ${opportunity.stage === 'Negotiation' ? 'selected' : ''}>Negotiation</option>
+                            <option value="Closed Won" ${opportunity.stage === 'Closed Won' ? 'selected' : ''}>Closed Won</option>
+                            <option value="Closed Lost" ${opportunity.stage === 'Closed Lost' ? 'selected' : ''}>Closed Lost</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOpportunityCloseDate">Close Date</label>
+                        <input type="date" id="editOpportunityCloseDate" value="${opportunity.closeDate}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOpportunityDescription">Description</label>
+                        <textarea id="editOpportunityDescription" rows="3">${opportunity.description || ''}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            `;
+
+            document.getElementById('editOpportunityForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                opportunity.name = document.getElementById('editOpportunityName').value;
+                opportunity.customer = document.getElementById('editOpportunityCustomer').value;
+                opportunity.value = parseFloat(document.getElementById('editOpportunityValue').value);
+                opportunity.probability = parseInt(document.getElementById('editOpportunityProbability').value);
+                opportunity.stage = document.getElementById('editOpportunityStage').value;
+                opportunity.closeDate = document.getElementById('editOpportunityCloseDate').value;
+                opportunity.description = document.getElementById('editOpportunityDescription').value;
+
+                renderOpportunities();
+                updateDashboard();
+                updateReports();
+                closeModal();
+                showNotification('Opportunity updated successfully!', 'success');
+            });
+
+            openModal();
+        }
+
+        function deleteOpportunity(id) {
+            if (confirm('Are you sure you want to delete this opportunity?')) {
+                opportunities = opportunities.filter(opportunity => opportunity.id !== id);
+                renderOpportunities();
+                updateDashboard();
+                updateReports();
+                showNotification('Opportunity deleted successfully!', 'success');
+            }
+        }
+
+        // Activity Management
+        function handleActivitySubmit(e) {
+            e.preventDefault();
+            const activity = {
+                id: Date.now(),
+                type: document.getElementById('activityType').value,
+                subject: document.getElementById('activitySubject').value,
+                description: document.getElementById('activityDescription').value,
+                dateTime: document.getElementById('activityDateTime').value,
+                relatedTo: document.getElementById('activityRelated').value
+            };
+
+            activities.push(activity);
+            renderActivities();
+            e.target.reset();
+            
+            showNotification('Activity logged successfully!', 'success');
+        }
+
+        function logActivity(type, subject, description) {
+            const activity = {
+                id: Date.now(),
+                type: type,
+                subject: subject,
+                description: description,
+                dateTime: new Date().toISOString(),
+                relatedTo: 'System'
+            };
+            activities.push(activity);
+            renderActivities();
+        }
+
+        function renderActivities() {
+            const container = document.getElementById('activitiesContainer');
+            container.innerHTML = '';
+
+            // Sort activities by date (newest first)
+            const sortedActivities = [...activities].sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+
+            sortedActivities.slice(0, 10).forEach(activity => {
+                const activityDiv = document.createElement('div');
+                activityDiv.className = 'activity-item';
+                activityDiv.innerHTML = `
+                    <div class="activity-time">${new Date(activity.dateTime).toLocaleString()}</div>
+                    <div class="activity-description">
+                        <strong>${activity.type}:</strong> ${activity.subject}
+                    </div>
+                    <div style="margin-top: 5px; color: #666;">${activity.description}</div>
+                `;
+                container.appendChild(activityDiv);
+            });
+        }
+
+        // Dashboard and Analytics
+        function updateDashboard() {
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('totalLeads').textContent = leads.filter(lead => lead.status !== 'Unqualified').length;
+            document.getElementById('totalOpportunities').textContent = opportunities.filter(opp => !opp.stage.includes('Closed')).length;
+            
+            const pipelineValue = opportunities
+                .filter(opp => !opp.stage.includes('Closed'))
+                .reduce((sum, opp) => sum + (opp.value * opp.probability / 100), 0);
+            document.getElementById('totalRevenue').textContent = `$${pipelineValue.toLocaleString()}`;
+
+            // Update charts
+            updatePipelineChart();
+            updateSalesChart();
+        }
+
+        function updatePipelineChart() {
+            const ctx = document.getElementById('pipelineChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.pipelineChart) {
+                window.pipelineChart.destroy();
+            }
+            
+            // Count opportunities by stage
+            const stageCounts = {};
+            opportunities.forEach(opp => {
+                stageCounts[opp.stage] = (stageCounts[opp.stage] || 0) + 1;
+            });
+
+            window.pipelineChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(stageCounts),
+                    datasets: [{
+                        data: Object.values(stageCounts),
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#f5576c',
+                            '#4facfe',
+                            '#00f2fe'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.salesChart) {
+                window.salesChart.destroy();
+            }
+            
+            // Generate sample monthly data
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const salesData = [45000, 52000, 48000, 61000, 55000, 67000];
+
+            window.salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly Sales',
+                        data: salesData,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateReports() {
+            updateIndustryChart();
+            updateLeadStatusChart();
+            updateOpportunityStageChart();
+        }
+
+        function updateIndustryChart() {
+            const ctx = document.getElementById('industryChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.industryChart) {
+                window.industryChart.destroy();
+            }
+            
+            // Count customers by industry
+            const industryCounts = {};
+            customers.forEach(customer => {
+                industryCounts[customer.industry] = (industryCounts[customer.industry] || 0) + 1;
+            });
+
+            window.industryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(industryCounts),
+                    datasets: [{
+                        label: 'Customers by Industry',
+                        data: Object.values(industryCounts),
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateLeadStatusChart() {
+            const ctx = document.getElementById('leadStatusChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.leadStatusChart) {
+                window.leadStatusChart.destroy();
+            }
+            
+            // Count leads by status
+            const statusCounts = {};
+            leads.forEach(lead => {
+                statusCounts[lead.status] = (statusCounts[lead.status] || 0) + 1;
+            });
+
+            window.leadStatusChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#f5576c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateOpportunityStageChart() {
+            const ctx = document.getElementById('opportunityStageChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.opportunityStageChart) {
+                window.opportunityStageChart.destroy();
+            }
+            
+            // Count opportunities by stage
+            const stageCounts = {};
+            opportunities.forEach(opp => {
+                stageCounts[opp.stage] = (stageCounts[opp.stage] || 0) + 1;
+            });
+
+            window.opportunityStageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(stageCounts),
+                    datasets: [{
+                        label: 'Opportunities by Stage',
+                        data: Object.values(stageCounts),
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modal Functions
+        function openModal() {
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Notification
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
