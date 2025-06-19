@@ -1,67 +1,96 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import random
 
-# Load data
+# Load Excel data
 @st.cache_data
 def load_data():
-    excel_file = pd.ExcelFile("crm_test_case_data.xlsx")
-    companies = excel_file.parse('Companies')
-    people = excel_file.parse('People')
+    xl = pd.ExcelFile("crm_test_case_data.xlsx")
+    companies = xl.parse("Companies")
+    people = xl.parse("People")
     return companies, people
 
+# Load data
 companies_df, people_df = load_data()
 
-# Merge to associate people with company info
-merged_df = people_df.merge(companies_df, left_on="Company", right_on="Company Name", how="left")
+# Simulate lead statuses (if not already present)
+if "Lead Status" not in people_df.columns:
+    people_df["Lead Status"] = [random.choice(["New", "Contacted", "Qualified", "Converted", "Lost"])
+                                for _ in range(len(people_df))]
 
-# Sidebar Navigation
-st.sidebar.title("Simple CRM Navigation")
-page = st.sidebar.radio("Go to", ["Dashboard", "Companies", "People", "Leads"])
+# Set up sidebar navigation
+st.sidebar.title("CRM Navigation")
+page = st.sidebar.radio("Go to", ["📊 Dashboard", "🏢 Companies", "🧑 People", "📂 Leads"])
 
-# Dashboard Page
-if page == "Dashboard":
-    st.title("📊 CRM Dashboard Overview")
-    st.metric("Total Companies", len(companies_df))
-    st.metric("Total People", len(people_df))
-    top_industries = companies_df['Industry'].value_counts().head(5)
-    st.subheader("Top Industries")
-    st.bar_chart(top_industries)
+# ------------------ PAGE: DASHBOARD ------------------
+if page == "📊 Dashboard":
+    st.title("📊 CRM Dashboard")
 
-# Companies Page
-elif page == "Companies":
+    # Top KPIs
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Companies", len(companies_df))
+    col2.metric("Total Contacts", len(people_df))
+    col3.metric("Total Revenue (M)", f"${companies_df['Revenue (in Millions)'].sum():,.2f}")
+    col4.metric("Industries", companies_df['Industry'].nunique())
+
+    st.divider()
+
+    # Chart: Companies per Industry
+    st.subheader("🏭 Companies per Industry")
+    industry_counts = companies_df['Industry'].value_counts()
+    st.bar_chart(industry_counts)
+
+    # Chart: Lead Status Pie Chart
+    st.subheader("🧭 Lead Status Distribution")
+    status_counts = people_df['Lead Status'].value_counts()
+    fig, ax = plt.subplots()
+    ax.pie(status_counts, labels=status_counts.index, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+    st.pyplot(fig)
+
+    # Top companies
+    st.subheader("💼 Top 5 Companies by Revenue")
+    top_rev = companies_df.sort_values(by="Revenue (in Millions)", ascending=False).head(5)
+    st.table(top_rev[['Company Name', 'Revenue (in Millions)', 'Industry']])
+
+    # Top contacts
+    st.subheader("🧑 Top 10 Contacts")
+    st.table(people_df[['Name', 'Email', 'Title', 'Company']].head(10))
+
+# ------------------ PAGE: COMPANIES ------------------
+elif page == "🏢 Companies":
     st.title("🏢 Companies")
     industry_filter = st.selectbox("Filter by Industry", ["All"] + sorted(companies_df['Industry'].unique().tolist()))
-    if industry_filter != "All":
-        filtered = companies_df[companies_df['Industry'] == industry_filter]
-    else:
-        filtered = companies_df
+    filtered = companies_df if industry_filter == "All" else companies_df[companies_df['Industry'] == industry_filter]
     st.dataframe(filtered)
 
-# People Page
-elif page == "People":
+# ------------------ PAGE: PEOPLE ------------------
+elif page == "🧑 People":
     st.title("🧑 Contacts")
     company_filter = st.selectbox("Filter by Company", ["All"] + sorted(people_df['Company'].unique().tolist()))
-    if company_filter != "All":
-        filtered = people_df[people_df['Company'] == company_filter]
-    else:
-        filtered = people_df
-    st.dataframe(filtered)
+    filtered = people_df if company_filter == "All" else people_df[people_df['Company'] == company_filter]
+    st.dataframe(filtered[['Name', 'Email', 'Phone Number', 'Title', 'Company']])
 
-# Leads Page
-elif page == "Leads":
-    st.title("🗂️ Lead Management")
+# ------------------ PAGE: LEADS ------------------
+elif page == "📂 Leads":
+    st.title("📂 Lead Management")
 
-    # Simulated Lead Status (store in session_state for demo)
+    # Track lead status updates
     if "lead_status" not in st.session_state:
-        st.session_state.lead_status = {name: "New" for name in people_df['Name']}
+        st.session_state.lead_status = {row['Name']: row['Lead Status'] for _, row in people_df.iterrows()}
 
     for i, row in people_df.iterrows():
-        name = row['Name']
-        col1, col2, col3 = st.columns([3, 2, 2])
-        col1.markdown(f"**{name}** - {row['Company']}")
-        current_status = st.session_state.lead_status.get(name, "New")
-        new_status = col2.selectbox("Status", ["New", "Contacted", "Qualified", "Converted", "Lost"],
-                                    key=f"status_{i}", index=["New", "Contacted", "Qualified", "Converted", "Lost"].index(current_status))
-        if new_status != current_status:
+        name = row["Name"]
+        with st.expander(f"{name} - {row['Company']}"):
+            col1, col2 = st.columns([3, 2])
+            new_status = col1.selectbox(
+                "Update Lead Status",
+                ["New", "Contacted", "Qualified", "Converted", "Lost"],
+                index=["New", "Contacted", "Qualified", "Converted", "Lost"].index(
+                    st.session_state.lead_status[name]
+                ),
+                key=f"status_{i}"
+            )
             st.session_state.lead_status[name] = new_status
-        col3.markdown(f"**Status**: {st.session_state.lead_status[name]}")
+            col2.write(f"📌 Current: **{st.session_state.lead_status[name]}**")
